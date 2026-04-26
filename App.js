@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Image } from 'react-native';
 import {
   View,
   Text,
@@ -18,10 +19,10 @@ export default function App(){
   useEffect(() => {
     if (pantalla === 'api') {
       setLoading(true);
-      fetch('https://www.asterank.com/api/skymorph/search?target=J99TS7A')
+      fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=chicken')
         .then(res => res.json())
         .then(data => {
-          setDatos(data);
+          setDatos(data.meals); 
           setLoading(false);
         })
         .catch(err => {
@@ -91,9 +92,13 @@ export default function App(){
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <View style={{ backgroundColor: '#ddd', padding: 10, margin: 5, borderRadius: 5 }}>
-                <Text>Fecha: {item.date}</Text>
-                <Text>Distancia: {item.dist}</Text>
-                <Text>Velocidad: {item.v}</Text>
+                <Text>Comida: {item.strMeal}</Text>
+                <Text>Categoria: {item.strCategory}</Text>
+                <Text>Pais: {item.strArea}</Text>
+                <Text>Receta: {item.strInstructions}</Text>
+                <Image source={{ uri: item.strMealThumb }}
+                style={{ width: 120, height: 120, borderRadius: 10 }}
+                />
               </View>
             )}
           />
