@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
-import{
-  view,
-  text,
+import React, { useState, useEffect } from 'react';
+import { Image } from 'react-native';
+import {
+  View,
+  Text,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  FlatList
 } from 'react-native';
 
-
 export default function App(){
-  const[pantalla, setPantalla] =useState('menu');
+  const [pantalla, setPantalla] = useState('menu');
 
+  // estados para la API
+  const [datos, setDatos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Lista Api
+  useEffect(() => {
+    if (pantalla === 'api') {
+      setLoading(true);
+      fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=chicken')
+        .then(res => res.json())
+        .then(data => {
+          setDatos(data.meals); 
+          setLoading(false);
+        })
+        .catch(err => {
+          console.log(err);
+          setLoading(false);
+        });
+    }
+  }, [pantalla]);
 
   //menu 
   if(pantalla ==='menu'){
@@ -37,42 +58,58 @@ export default function App(){
           <Text style={styles.textoBoton}>Funcion Original</Text>
         </TouchableOpacity>
       </View>
-
     );
   }
+
   //Pantalla inicio
   if(pantalla === 'inicio'){
     return(
-      <View Style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.titulo}>Pantalla Inicio</Text>
         <Text>Bienvenidos a nuestra aplicacion explora nuestro menu y observa lo que tenemos para ofrecerte</Text>
       
-      <TouchableOpacity
-      style={styles.botonVolver}
-      onPress={()=>setPantalla('menu')}
-      >
-        <Text style={styles.textoBoton}>Volver</Text>
-      
-      </TouchableOpacity>
+        <TouchableOpacity
+        style={styles.botonVolver}
+        onPress={()=>setPantalla('menu')}
+        >
+          <Text style={styles.textoBoton}>Volver</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   //Pantalla API
-
   if(pantalla ==='api'){
     return(
       <View style={styles.container}>
         <Text style={styles.titulo}>Pantalla Lista Api</Text>
-        <Text>Aqui trabaja richi</Text>
-      
-      <TouchableOpacity
-      style={styles.botonVolver}
-      onPress={()=>setPantalla('menu')}>
-        <Text style={styles.textoBoton}>Volver</Text>
-      </TouchableOpacity>
-      </View>
 
+        {loading ? (
+          <Text>Cargando...</Text>
+        ) : (
+          <FlatList
+            data={datos}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={{ backgroundColor: '#ddd', padding: 10, margin: 5, borderRadius: 5 }}>
+                <Text>Comida: {item.strMeal}</Text>
+                <Text>Categoria: {item.strCategory}</Text>
+                <Text>Pais: {item.strArea}</Text>
+                <Text>Receta: {item.strInstructions}</Text>
+                <Image source={{ uri: item.strMealThumb }}
+                style={{ width: 120, height: 120, borderRadius: 10 }}
+                />
+              </View>
+            )}
+          />
+        )}
+
+        <TouchableOpacity
+        style={styles.botonVolver}
+        onPress={()=>setPantalla('menu')}>
+          <Text style={styles.textoBoton}>Volver</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -92,6 +129,7 @@ export default function App(){
   }
 
 }
+
 const styles = StyleSheet.create({
   container:{
     flex: 1,
@@ -124,5 +162,4 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold'
   }
-});
-  
+})
